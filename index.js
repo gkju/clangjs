@@ -28,7 +28,8 @@ export const compileAndRun = async (mainC) => {
         // '--target=wasm32-wasip1-threads',
         '-fno-exceptions',
         //'-v',
-        '-std=c++17',
+        '-std=c++20',
+        '-O1',
         '-c',
         'main.cpp'
     ])
