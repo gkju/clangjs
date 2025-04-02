@@ -1,0 +1,92 @@
+import { useEffect, useRef, useState } from 'react';
+import { MonacoLanguageClient } from 'monaco-languageclient';
+import * as monaco from 'monaco-editor'
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+
+// import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageclient/browser';
+// const reader = new BrowserMessageReader(worker);
+// const writer = new BrowserMessageWriter(worker);
+import './App.css'
+import './clangjs/index.js'
+
+import { initialize } from '@codingame/monaco-vscode-api'
+import * as vscode from '@codingame/monaco-vscode-api'
+import 'vscode/localExtensionHost'
+import getLanguagesServiceOverride from "@codingame/monaco-vscode-languages-service-override";
+import getThemeServiceOverride from "@codingame/monaco-vscode-theme-service-override";
+import getTextMateServiceOverride from "@codingame/monaco-vscode-textmate-service-override";
+import { getLSP } from './LSP.js';
+import MonacoEditor from './MonacoEditor.js';
+import { CloseAction, ErrorAction } from 'vscode-languageclient';
+import '@codingame/monaco-vscode-cpp-default-extension';
+import "@codingame/monaco-vscode-theme-defaults-default-extension";
+
+self.MonacoEnvironment = {
+  getWorker(_, label) {
+    if (label === 'json') {
+      return new jsonWorker()
+    }
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return new cssWorker()
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return new htmlWorker()
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return new tsWorker()
+    }
+    return new editorWorker()
+  }
+}
+
+await initialize({
+	...getTextMateServiceOverride(),
+	...getThemeServiceOverride(),
+	...getLanguagesServiceOverride(),
+});
+
+const { worker, reader, writer } = await getLSP();
+
+const languageClient = new MonacoLanguageClient({
+  name: 'Clangd Client',
+  clientOptions: { 
+    documentSelector: ['cpp' ],
+    errorHandler: {
+        error: () => ({ action: ErrorAction.Continue }),
+        closed: () => ({ action: CloseAction.DoNotRestart })
+    }
+    },
+    connectionProvider: {
+        get: async (_encoding: string) => ({ reader, writer }),
+    },
+//   connectionProvider: {
+//     get: async () => ({ reader, writer }),
+//   },
+  connection: {
+    messageTransports: { reader, writer },
+  },
+  messageTransports: { reader, writer },
+});
+
+console.log("STARTING LANGUAGECLIENT")
+languageClient.start();
+
+// monaco.editor.create(document.getElementById('editor')!, {
+// 	value: "import numpy as np\nprint('Hello world!')",
+// 	language: 'cpp'
+// });
+//import { MainThreadMessageReader, MainThreadMessageWriter } from './main-thread.js';
+function App() {
+
+  return (
+    <div style={{ height: '100vh', width: '100%' }}>
+        <MonacoEditor value='' language='cpp' />
+    </div>
+  )
+}
+
+export default App

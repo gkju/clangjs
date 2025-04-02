@@ -1,1 +1,26 @@
 oldartifacts/*.data
+
+# Logs
+web-ide/logs
+web-ide/*.log
+web-ide/npm-debug.log*
+web-ide/yarn-debug.log*
+web-ide/yarn-error.log*
+web-ide/pnpm-debug.log*
+web-ide/lerna-debug.log*
+
+web-ide/node_modules
+web-ide/dist
+web-ide/dist-ssr
+web-ide/*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
