@@ -11,8 +11,8 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 // import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageclient/browser';
 // const reader = new BrowserMessageReader(worker);
 // const writer = new BrowserMessageWriter(worker);
-import { WrapperConfig } from 'monaco-editor-wrapper';
-import { MonacoEditorReactComp } from '@typefox/monaco-editor-react';
+//import { WrapperConfig } from 'monaco-editor-wrapper';
+//import { MonacoEditorReactComp } from '@typefox/monaco-editor-react';
 import './App.css'
 import './clangjs/index.js'
 import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageclient/browser.js';
