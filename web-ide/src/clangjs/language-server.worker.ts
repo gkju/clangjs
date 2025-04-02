@@ -4,7 +4,7 @@ declare var self: DedicatedWorkerGlobalScope;
 
 import Clangd from "./clangd.js";
 import { workspacePath, cppUri } from "../config.ts";
-
+(async () => {
 console.log(Clangd);
 const textEncoder = new TextEncoder();
 let resolveStdinReady = () => {};
@@ -170,3 +170,4 @@ self.onmessage = (event) => {
 //      }
 //    }
 //  })
+})();

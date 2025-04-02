@@ -45,45 +45,48 @@ self.MonacoEnvironment = {
         return new editorWorker();
     },
 };
-
-await initialize({
-    ...getTextMateServiceOverride(),
-    ...getThemeServiceOverride(),
-    ...getLanguagesServiceOverride(),
-    ...getFilesServiceOverride(),
-    ...getModelServiceOverride(),
-});
-
-const { worker, reader, writer } = await getLSP();
-
-const languageClient = new MonacoLanguageClient({
-    name: "Clangd Client",
-    clientOptions: {
-        documentSelector: ["cpp"],
-        errorHandler: {
-            error: () => ({ action: ErrorAction.Continue }),
-            closed: () => ({ action: CloseAction.DoNotRestart }),
+(async () => {
+    await initialize({
+        ...getTextMateServiceOverride(),
+        ...getThemeServiceOverride(),
+        ...getLanguagesServiceOverride(),
+        ...getFilesServiceOverride(),
+        ...getModelServiceOverride(),
+    });
+    // TODO: notify upon successful initialization with something like zustand
+    
+    const { worker, reader, writer } = await getLSP();
+    
+    const languageClient = new MonacoLanguageClient({
+        name: "Clangd Client",
+        clientOptions: {
+            documentSelector: ["cpp"],
+            errorHandler: {
+                error: () => ({ action: ErrorAction.Continue }),
+                closed: () => ({ action: CloseAction.DoNotRestart }),
+            },
+            workspaceFolder: {
+                index: 0,
+                name: "workspace",
+                uri: monaco.Uri.file(cppUri),
+            },
         },
-        workspaceFolder: {
-            index: 0,
-            name: "workspace",
-            uri: monaco.Uri.file(cppUri),
+        connectionProvider: {
+            get: async (_encoding: string) => ({ reader, writer }),
         },
-    },
-    connectionProvider: {
-        get: async (_encoding: string) => ({ reader, writer }),
-    },
-    //   connectionProvider: {
-    //     get: async () => ({ reader, writer }),
-    //   },
-    connection: {
+        //   connectionProvider: {
+        //     get: async () => ({ reader, writer }),
+        //   },
+        connection: {
+            messageTransports: { reader, writer },
+        },
         messageTransports: { reader, writer },
-    },
-    messageTransports: { reader, writer },
-});
+    });
+    
+    console.log("STARTING LANGUAGECLIENT");
+    languageClient.start();
+})();
 
-console.log("STARTING LANGUAGECLIENT");
-languageClient.start();
 
 // monaco.editor.create(document.getElementById('editor')!, {
 // 	value: "import numpy as np\nprint('Hello world!')",
