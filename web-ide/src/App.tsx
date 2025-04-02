@@ -96,32 +96,31 @@ self.MonacoEnvironment = {
 // });
 //import { MainThreadMessageReader, MainThreadMessageWriter } from './main-thread.js';
 function App() {
-    const [springs, api] = useSpring(() => ({
-        from: { x: 0 },
-    }))
+    // const [springs, api] = useSpring(() => ({
+    //     from: { x: 0 },
+    // }))
 
-    const [lastWidth, setLastWidth] = useState(80);
+    // const [lastWidth, setLastWidth] = useState(80);
     
     
 
-    const width = useSpringValue(80);
+    // const width = useSpringValue(80);
 
-    const handleClick = () => {
-        compileAndRun("#include <print> \n int main()\n { std::print(\"TESTchwdp\"); }").then(console.log).catch(console.error)
-        width.start(lastWidth * 1.1)
-        setLastWidth(lastWidth * 1.1)
-            // api.start({
-            //     from: {
-            //     x: 0,
-            //     },
-            //     to: {
-            //     x: 200,
-            //     },
-            // })
-    }
+    // const handleClick = () => {
+    //     width.start(lastWidth * 1.1)
+    //     setLastWidth(lastWidth * 1.1)
+    //         // api.start({
+    //         //     from: {
+    //         //     x: 0,
+    //         //     },
+    //         //     to: {
+    //         //     x: 200,
+    //         //     },
+    //         // })
+    // }
     
     return <>
-        <animated.div onClick={handleClick}
+        {/* <animated.div onClick={handleClick}
             style={{
                 width,
                 height: 80,
@@ -132,9 +131,9 @@ function App() {
             <>
             <MonacoEditor value="" language="cpp" />
             </>
-        </animated.div>
+        </animated.div> */}
         <div style={{ height: "100vh", width: "100%" }}>
-            <MonacoEditor onChange={console.error} value="" language="cpp" />
+            <MonacoEditor value="" language="cpp" />
         </div>
     </>;
 }
