@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -21,8 +21,9 @@
     "@codingame/monaco-vscode-textmate-service-override": "^15.0.3",
     "@codingame/monaco-vscode-theme-defaults-default-extension": "^15.0.3",
     "@codingame/monaco-vscode-theme-service-override": "^15.0.3",
-    "@codingame/monaco-vscode-workbench-service-override": "^15.0.3",
     "@react-spring/web": "^9.7.5",
+    "@wasmer/wasi": "^1.2.2",
+    "buffer": "^6.0.3",
     "coi-serviceworker": "^0.1.7",
     "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@^15.0.3",
     "monaco-languageclient": "^9.5.0",

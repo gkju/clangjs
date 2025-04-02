@@ -17,7 +17,16 @@ export default defineConfig({
       promiseImportName: (i) => `__tla_${i}`,
     }),
   ],
+  resolve: {
+    alias: {
+      buffer: "buffer",
+    },
+  },
+  define: {
+    global: "window", // Ensure global is defined for browser compatibility
+  },
   optimizeDeps: {
+    exclude: ['js-big-decimal', '@wasmer/wasi'],
     esbuildOptions: {
       plugins: [
         {

@@ -28,6 +28,7 @@ import "@codingame/monaco-vscode-cpp-default-extension";
 import "@codingame/monaco-vscode-theme-defaults-default-extension";
 import { cppUri } from "./config.js";
 import { useSpring, animated, useSpringValue } from '@react-spring/web'
+import {compileAndRun} from "./clangjs/index";
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -106,6 +107,7 @@ function App() {
     const width = useSpringValue(80);
 
     const handleClick = () => {
+        compileAndRun("#include <print> \n int main()\n { std::print(\"TESTchwdp\"); }").then(console.log).catch(console.error)
         width.start(lastWidth * 1.1)
         setLastWidth(lastWidth * 1.1)
             // api.start({

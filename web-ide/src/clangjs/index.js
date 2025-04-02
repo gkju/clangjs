@@ -1,10 +1,18 @@
-import { init, WASI } from "https://esm.sh/@wasmer/wasi@1.1.2";
+//import { init, WASI } from "https://esm.sh/@wasmer/wasi@1.1.2";
 import Clang from "./clang.js";
 import Lld from "./lld.js";
+import { init, WASI } from "@wasmer/wasi";
+import { Buffer } from "buffer";
 
-await init();
+
 
 export const compileAndRun = async (mainC) => {
+    // TODO: move init to a better place
+    window.Buffer = Buffer;
+    await init();
+
+    
+
     const clang = await Clang({
         print: console.log,
         printErr: console.error,
