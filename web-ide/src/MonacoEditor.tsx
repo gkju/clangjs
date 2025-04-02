@@ -90,6 +90,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({
             // monaco.editor.createModel(value, language, workspaceUri);
 
             // Handle content changes
+
             if (onChange) {
                 monacoEditorRef.current.onDidChangeModelContent(() => {
                     const editorValue =

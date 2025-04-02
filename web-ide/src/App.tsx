@@ -27,6 +27,7 @@ import { CloseAction, ErrorAction } from "vscode-languageclient";
 import "@codingame/monaco-vscode-cpp-default-extension";
 import "@codingame/monaco-vscode-theme-defaults-default-extension";
 import { cppUri } from "./config.js";
+import { useSpring, animated, useSpringValue } from '@react-spring/web'
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -94,11 +95,46 @@ self.MonacoEnvironment = {
 // });
 //import { MainThreadMessageReader, MainThreadMessageWriter } from './main-thread.js';
 function App() {
-    return (
-        <div style={{ height: "100vh", width: "100%" }}>
+    const [springs, api] = useSpring(() => ({
+        from: { x: 0 },
+    }))
+
+    const [lastWidth, setLastWidth] = useState(80);
+    
+    
+
+    const width = useSpringValue(80);
+
+    const handleClick = () => {
+        width.start(lastWidth * 1.1)
+        setLastWidth(lastWidth * 1.1)
+            // api.start({
+            //     from: {
+            //     x: 0,
+            //     },
+            //     to: {
+            //     x: 200,
+            //     },
+            // })
+    }
+    
+    return <>
+        <animated.div onClick={handleClick}
+            style={{
+                width,
+                height: 80,
+                background: '#ff6d6d',
+                borderRadius: 8,
+                ...springs,
+            }}>
+            <>
             <MonacoEditor value="" language="cpp" />
+            </>
+        </animated.div>
+        <div style={{ height: "100vh", width: "100%" }}>
+            <MonacoEditor onChange={console.error} value="" language="cpp" />
         </div>
-    );
+    </>;
 }
 
 export default App;
