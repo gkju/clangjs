@@ -22,9 +22,6 @@ export default defineConfig({
       buffer: "buffer",
     },
   },
-  define: {
-    global: "window", // Ensure global is defined for browser compatibility
-  },
   optimizeDeps: {
     exclude: ['js-big-decimal', '@wasmer/wasi'],
     esbuildOptions: {
