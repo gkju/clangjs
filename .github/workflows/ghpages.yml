@@ -24,12 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node and pnpm
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-          package-manager: 'pnpm'
 
       - name: Install dependencies
         working-directory: ./web-ide
