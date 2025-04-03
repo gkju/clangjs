@@ -13,7 +13,7 @@ import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import "./App.css";
 import "./clangjs/index.js";
 
-import { initialize } from "@codingame/monaco-vscode-api";
+import { initialize, getService } from "@codingame/monaco-vscode-api";
 import * as vscode from "@codingame/monaco-vscode-api";
 import "vscode/localExtensionHost";
 import getLanguagesServiceOverride from "@codingame/monaco-vscode-languages-service-override";
@@ -21,6 +21,14 @@ import getThemeServiceOverride from "@codingame/monaco-vscode-theme-service-over
 import getTextMateServiceOverride from "@codingame/monaco-vscode-textmate-service-override";
 import getFilesServiceOverride from "@codingame/monaco-vscode-files-service-override";
 import getModelServiceOverride from "@codingame/monaco-vscode-model-service-override";
+import getConfigServiceOverride from "@codingame/monaco-vscode-configuration-service-override";
+import getViewsServiceOverride, { IReference, IResolvedTextEditorModel, OpenEditor } from "@codingame/monaco-vscode-views-service-override";
+import getEditSessionsServiceOverride from '@codingame/monaco-vscode-edit-sessions-service-override'
+import getEnvironmentServiceOverride from '@codingame/monaco-vscode-environment-service-override'
+import getLifecycleServiceOverride from '@codingame/monaco-vscode-lifecycle-service-override'
+import getStorageServiceOverride from '@codingame/monaco-vscode-storage-service-override'
+import getExtensionServiceOverride from '@codingame/monaco-vscode-extensions-service-override'
+
 import { getLSP } from "./LSP.js";
 import MonacoEditor from "./MonacoEditor.js";
 import { CloseAction, ErrorAction } from "vscode-languageclient";
@@ -32,6 +40,7 @@ import {compileAndRun} from "./clangjs/index";
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
+        console.log("GETTING WORKER", label);
         if (label === "json") {
             return new jsonWorker();
         }
@@ -44,9 +53,16 @@ self.MonacoEnvironment = {
         if (label === "typescript" || label === "javascript") {
             return new tsWorker();
         }
+        if (label === "TextMateWorker") {
+            return new Worker(
+                new URL('@codingame/monaco-vscode-textmate-service-override/worker', import.meta.url),
+                { type: 'module' }
+              );
+        }
         return new editorWorker();
     },
 };
+
 (async () => {
     await initialize({
         ...getTextMateServiceOverride(),
@@ -54,8 +70,25 @@ self.MonacoEnvironment = {
         ...getLanguagesServiceOverride(),
         ...getFilesServiceOverride(),
         ...getModelServiceOverride(),
+        // ...getConfigServiceOverride(),
+        // ...getEditSessionsServiceOverride(),
+        // ...getEnvironmentServiceOverride(),
+        // ...getLifecycleServiceOverride(),
+        // ...getStorageServiceOverride({
+        //     fallbackOverride: {
+        //       'workbench.activity.showAccounts': false
+        //     }
+        //   }),
+        // ...getExtensionServiceOverride(),
+        // ...getViewsServiceOverride()
     });
     // TODO: notify upon successful initialization with something like zustand
+    //console.log("INITIALIZED MONACO ENVIRONMENT");
+
+    const themeService = await getService(vscode.IThemeService);
+    console.log(themeService.getColorTheme());
+    const service = await getService(vscode.IConfigurationService);
+    (service.updateValue("workbench.colorTheme", "Default Dark Modern"));
     
     const { worker, reader, writer } = await getLSP();
     
@@ -101,8 +134,8 @@ function App() {
     // }))
 
     // const [lastWidth, setLastWidth] = useState(80);
-    
-    
+
+
 
     // const width = useSpringValue(80);
 
@@ -118,6 +151,8 @@ function App() {
     //         //     },
     //         // })
     // }
+
+    const [editorEnabled, setEnabled] = useState(false);
     
     return <>
         {/* <animated.div onClick={handleClick}
@@ -135,6 +170,8 @@ function App() {
         <div style={{ height: "100vh", width: "100%" }}>
             <MonacoEditor value="" language="cpp" />
         </div>
+        {/* <button onClick={() => setEnabled(!editorEnabled)}>Toggle Editor</button>
+        {editorEnabled && (<div style={{ height: "100vh", width: "100%" }}><MonacoEditor refCallback={console.log} value="" language="cpp" /></div>)} */}
     </>;
 }
 

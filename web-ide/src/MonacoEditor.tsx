@@ -15,12 +15,14 @@ interface MonacoEditorProps {
     value: string;
     language: string;
     onChange?: (value: string) => void;
+    refCallback?: (editor: monaco.editor.IStandaloneCodeEditor) => void;
 }
 
 const MonacoEditor: React.FC<MonacoEditorProps> = ({
     value,
     language,
     onChange,
+    refCallback
 }) => {
     const editorRef = useRef<HTMLDivElement | null>(null);
     const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(
@@ -82,8 +84,13 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({
                 model: modelRef?.current?.object?.textEditorModel,
                 //theme: "vs-dark",
                 // theme dark-modern;
-                theme: "vs-dark",
+                theme: "hc-dark",
             });
+            console.log("CREATED EDITOR");
+
+            if (monacoEditorRef.current && refCallback) {
+                refCallback(monacoEditorRef.current);
+            }
 
             // Configure workspace
             // const workspaceUri = monaco.Uri.file("/workspace/test.cpp");
