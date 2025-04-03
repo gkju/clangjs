@@ -22,6 +22,9 @@ export default defineConfig({
       buffer: "buffer",
     },
   },
+  worker: {
+    format: "es",
+  },
   optimizeDeps: {
     exclude: ['js-big-decimal', '@wasmer/wasi'],
     esbuildOptions: {
