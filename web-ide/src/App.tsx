@@ -12,6 +12,11 @@ import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 // const writer = new BrowserMessageWriter(worker);
 import "./App.css";
 import "./clangjs/index.js";
+import {
+    Parts,
+    onPartVisibilityChange,
+    attachPart
+} from '@codingame/monaco-vscode-views-service-override';
 
 import { initialize, getService } from "@codingame/monaco-vscode-api";
 import * as vscode from "@codingame/monaco-vscode-api";
@@ -28,7 +33,11 @@ import getEnvironmentServiceOverride from '@codingame/monaco-vscode-environment-
 import getLifecycleServiceOverride from '@codingame/monaco-vscode-lifecycle-service-override'
 import getStorageServiceOverride from '@codingame/monaco-vscode-storage-service-override'
 import getExtensionServiceOverride from '@codingame/monaco-vscode-extensions-service-override'
-
+import getTerminalServiceOverride from '@codingame/monaco-vscode-terminal-service-override'
+import getBannerServiceOverride from '@codingame/monaco-vscode-view-banner-service-override'
+import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-bar-service-override'
+import getTitleBarServiceOverride from '@codingame/monaco-vscode-view-title-bar-service-override'
+import getScmServiceOverride from '@codingame/monaco-vscode-scm-service-override'
 import { getLSP } from "./LSP.js";
 import MonacoEditor from "./MonacoEditor.js";
 import { CloseAction, ErrorAction } from "vscode-languageclient";
@@ -37,6 +46,9 @@ import "@codingame/monaco-vscode-theme-defaults-default-extension";
 import { cppUri } from "./config.js";
 import { useSpring, animated, useSpringValue } from '@react-spring/web'
 import {compileAndRun} from "./clangjs/index";
+import {MonacoPart} from "./MonacoPart.tsx";
+import {useAppStore} from "./Store.ts";
+import {TerminalBackend} from "./Terminal.ts";
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -70,20 +82,26 @@ self.MonacoEnvironment = {
         ...getLanguagesServiceOverride(),
         ...getFilesServiceOverride(),
         ...getModelServiceOverride(),
-        // ...getConfigServiceOverride(),
-        // ...getEditSessionsServiceOverride(),
-        // ...getEnvironmentServiceOverride(),
-        // ...getLifecycleServiceOverride(),
-        // ...getStorageServiceOverride({
-        //     fallbackOverride: {
-        //       'workbench.activity.showAccounts': false
-        //     }
-        //   }),
-        // ...getExtensionServiceOverride(),
-        // ...getViewsServiceOverride()
-    });
+        ...getConfigServiceOverride(),
+        ...getEditSessionsServiceOverride(),
+        ...getEnvironmentServiceOverride(),
+        ...getLifecycleServiceOverride(),
+        ...getStorageServiceOverride({
+            fallbackOverride: {
+              'workbench.activity.showAccounts': false
+            }
+          }),
+        ...getScmServiceOverride(),
+        ...getExtensionServiceOverride(),
+        ...getViewsServiceOverride(),
+        ...getBannerServiceOverride(),
+        ...getStatusBarServiceOverride(),
+        ...getTitleBarServiceOverride(),
+        ...getTerminalServiceOverride(new TerminalBackend()),
+    }, document.body);
     // TODO: notify upon successful initialization with something like zustand
-    //console.log("INITIALIZED MONACO ENVIRONMENT");
+    console.log("INITIALIZED MONACO ENVIRONMENT");
+    useAppStore.getState().setInitialized(true);
 
     const themeService = await getService(vscode.IThemeService);
     console.log(themeService.getColorTheme());
@@ -134,6 +152,7 @@ function App() {
     // }))
 
     // const [lastWidth, setLastWidth] = useState(80);
+    const { initialized } = useAppStore();
 
 
 
@@ -153,6 +172,7 @@ function App() {
     // }
 
     const [editorEnabled, setEnabled] = useState(false);
+    console.log("Initialized", initialized);
     
     return <>
         {/* <animated.div onClick={handleClick}
@@ -167,8 +187,22 @@ function App() {
             <MonacoEditor value="" language="cpp" />
             </>
         </animated.div> */}
-        <div style={{ height: "100vh", width: "100%" }}>
+        <div style={{ height: "80vh", width: "100%" }}>
             <MonacoEditor value="" language="cpp" />
+        </div>
+        <div>
+            {initialized && <div style={{ height: "80vh", width: "100%" }}>
+                <MonacoPart part={Parts.PANEL_PART} />
+            </div>}
+            {initialized && <div style={{ height: "80vh", width: "100%" }}>
+                <MonacoPart part={Parts.SIDEBAR_PART} />
+            </div>}
+            {initialized && <div style={{ height: "80vh", width: "100%" }}>
+                <MonacoPart part={Parts.ACTIVITYBAR_PART} />
+            </div>}
+            {initialized && <div style={{ height: "80vh", width: "100%" }}>
+                <MonacoPart part={Parts.AUXILIARYBAR_PART} />
+            </div>}
         </div>
         {/* <button onClick={() => setEnabled(!editorEnabled)}>Toggle Editor</button>
         {editorEnabled && (<div style={{ height: "100vh", width: "100%" }}><MonacoEditor refCallback={console.log} value="" language="cpp" /></div>)} */}

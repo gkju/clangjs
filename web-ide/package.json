@@ -23,13 +23,19 @@
     "@codingame/monaco-vscode-lifecycle-service-override": "^15.0.3",
     "@codingame/monaco-vscode-model-service-override": "^15.0.3",
     "@codingame/monaco-vscode-rollup-vsix-plugin": "^15.0.3",
+    "@codingame/monaco-vscode-scm-service-override": "^16.0.0",
     "@codingame/monaco-vscode-storage-service-override": "^15.0.3",
+    "@codingame/monaco-vscode-terminal-service-override": "^16.0.0",
     "@codingame/monaco-vscode-textmate-service-override": "^15.0.3",
     "@codingame/monaco-vscode-theme-defaults-default-extension": "^15.0.3",
     "@codingame/monaco-vscode-theme-service-override": "^15.0.3",
+    "@codingame/monaco-vscode-view-banner-service-override": "^16.0.0",
+    "@codingame/monaco-vscode-view-status-bar-service-override": "^16.0.0",
+    "@codingame/monaco-vscode-view-title-bar-service-override": "^16.0.0",
     "@codingame/monaco-vscode-views-service-override": "^15.0.3",
     "@react-spring/web": "^9.7.5",
     "@wasmer/wasi": "^1.2.2",
+    "ansi-colors": "^4.1.3",
     "buffer": "^6.0.3",
     "coi-serviceworker": "^0.1.7",
     "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@^15.0.3",
@@ -38,7 +44,8 @@
     "react-dom": "^19.0.0",
     "vscode": "npm:@codingame/monaco-vscode-extension-api@^15.0.3",
     "vscode-jsonrpc": "^8.2.1",
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^9.0.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -55,5 +62,6 @@
     "vite": "^6.2.0",
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-top-level-await": "^1.5.0"
-  }
+  },
+  "packageManager": "pnpm@9.3.0+sha512.ee7b93e0c2bd11409c6424f92b866f31d3ea1bef5fbe47d3c7500cdc3c9668833d2e55681ad66df5b640c61fa9dc25d546efa54d76d7f8bf54b13614ac293631"
 }
