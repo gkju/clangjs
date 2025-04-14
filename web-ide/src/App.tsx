@@ -33,11 +33,13 @@ import getEnvironmentServiceOverride from '@codingame/monaco-vscode-environment-
 import getLifecycleServiceOverride from '@codingame/monaco-vscode-lifecycle-service-override'
 import getStorageServiceOverride from '@codingame/monaco-vscode-storage-service-override'
 import getExtensionServiceOverride from '@codingame/monaco-vscode-extensions-service-override'
-import getTerminalServiceOverride from '@codingame/monaco-vscode-terminal-service-override'
+import getTerminalServiceOverride, {ITerminalService} from '@codingame/monaco-vscode-terminal-service-override'
 import getBannerServiceOverride from '@codingame/monaco-vscode-view-banner-service-override'
 import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-bar-service-override'
 import getTitleBarServiceOverride from '@codingame/monaco-vscode-view-title-bar-service-override'
 import getScmServiceOverride from '@codingame/monaco-vscode-scm-service-override'
+import getExplorerServiceOverride from '@codingame/monaco-vscode-explorer-service-override'
+import getDialogsServiceOverride from '@codingame/monaco-vscode-dialogs-service-override'
 import { getLSP } from "./LSP.js";
 import MonacoEditor from "./MonacoEditor.js";
 import { CloseAction, ErrorAction } from "vscode-languageclient";
@@ -49,6 +51,9 @@ import {compileAndRun} from "./clangjs/index";
 import {MonacoPart} from "./MonacoPart.tsx";
 import {useAppStore} from "./Store.ts";
 import {TerminalBackend} from "./Terminal.ts";
+import {
+    TerminalService
+} from "@codingame/monaco-vscode-terminal-service-override/vscode/vs/workbench/contrib/terminal/browser/terminalService";
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -93,12 +98,26 @@ self.MonacoEnvironment = {
           }),
         ...getScmServiceOverride(),
         ...getExtensionServiceOverride(),
-        ...getViewsServiceOverride(),
+        ...getViewsServiceOverride((async (model, options) => {console.log(model, options); return null;})),
         ...getBannerServiceOverride(),
         ...getStatusBarServiceOverride(),
         ...getTitleBarServiceOverride(),
         ...getTerminalServiceOverride(new TerminalBackend()),
-    }, document.body);
+        ...getExplorerServiceOverride(),
+        ...getDialogsServiceOverride(),
+    }, document.body, {
+        workspaceProvider: {
+            trusted: true,
+            async open() {
+                console.log("OPENING", window.location.href)
+                window.open(window.location.href)
+                return true
+            },
+            workspace: {
+                workspaceUri:  monaco.Uri.file(cppUri)
+            }
+        },
+    });
     // TODO: notify upon successful initialization with something like zustand
     console.log("INITIALIZED MONACO ENVIRONMENT");
     useAppStore.getState().setInitialized(true);
@@ -107,6 +126,8 @@ self.MonacoEnvironment = {
     console.log(themeService.getColorTheme());
     const service = await getService(vscode.IConfigurationService);
     (service.updateValue("workbench.colorTheme", "Default Dark Modern"));
+
+    console.log(await getService(ITerminalService));
     
     const { worker, reader, writer } = await getLSP();
     
@@ -187,7 +208,7 @@ function App() {
             <MonacoEditor value="" language="cpp" />
             </>
         </animated.div> */}
-        <div style={{ height: "80vh", width: "100%" }}>
+        <div style={{ height: "100vh", width: "100%" }}>
             <MonacoEditor value="" language="cpp" />
         </div>
         <div>
@@ -201,8 +222,14 @@ function App() {
                 <MonacoPart part={Parts.ACTIVITYBAR_PART} />
             </div>}
             {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.AUXILIARYBAR_PART} />
+                <MonacoPart part={Parts.BANNER_PART} />
             </div>}
+            {initialized && <div style={{ height: "80vh", width: "100%" }}>
+                <MonacoPart part={Parts.STATUSBAR_PART} />
+            </div>}
+            {/*{initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+            {/*    <MonacoPart part={Parts.TITLEBAR_PART} />*/}
+            {/*</div>}*/}
         </div>
         {/* <button onClick={() => setEnabled(!editorEnabled)}>Toggle Editor</button>
         {editorEnabled && (<div style={{ height: "100vh", width: "100%" }}><MonacoEditor refCallback={console.log} value="" language="cpp" /></div>)} */}

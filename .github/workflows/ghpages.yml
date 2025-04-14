@@ -43,7 +43,7 @@ jobs:
       - name: Build
         working-directory: ./web-ide
         run: |
-          export NODE_OPTIONS=--max_old_space_size=4096
+          export NODE_OPTIONS=--max_old_space_size=6096
           pnpm run build
 
       - name: Setup Pages

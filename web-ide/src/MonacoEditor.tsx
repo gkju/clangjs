@@ -43,6 +43,12 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({
                 '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}'
             )
         );
+        fileSystemProvider.registerFile(
+            new RegisteredMemoryFile(
+                monaco.Uri.file(cppUri + "dwa" + ".cpp"),
+                '#include <iostream>\n\nint main() {\n    std::cout << "TRHello, World!" << std::endl;\n    return 0;\n}'
+            )
+        );
         const overlayDisposable = registerFileSystemOverlay(
             1,
             fileSystemProvider
