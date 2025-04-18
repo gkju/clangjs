@@ -16,6 +16,8 @@ class WebTerminalProcess extends SimpleTerminalProcess {
     private column = 0;
     private ioPipe: CommandIO = new CommandIO();
     private executor: CommandExecutor = new CommandExecutor(this.ioPipe);
+    private _onDidChangeProperty: vscode.Event<{ type: string; value: string }>;
+
 
     constructor(private dataEmitter: vscode.EventEmitter<string>,
                 private propertyEmitter: vscode.EventEmitter<{
@@ -23,6 +25,7 @@ class WebTerminalProcess extends SimpleTerminalProcess {
                     value: string
                 }>) {
         super(1, 1, '/workspace', dataEmitter.event)
+        this._onDidChangeProperty = propertyEmitter.event;
     }
 
     async start(): Promise<undefined> {
@@ -44,8 +47,12 @@ class WebTerminalProcess extends SimpleTerminalProcess {
         return undefined
     }
 
-    override get onDidChangeProperty() {
-        return this.propertyEmitter.event;
+    override get onDidChangeProperty(): vscode.Event<{ type: string; value: string }> {
+        return this._onDidChangeProperty;
+    }
+
+    override set onDidChangeProperty(evt: vscode.Event<{ type: string; value: string }>) {
+        this._onDidChangeProperty = evt;
     }
 
     override shutdown(immediate: boolean): void {
