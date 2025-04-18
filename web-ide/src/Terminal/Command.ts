@@ -1,0 +1,21 @@
+import {CommandIO} from "./CommandIO.ts";
+
+export type CommandConstructor = new () => Command;
+
+export abstract class Command {
+    protected io: CommandIO | null = null;
+
+    setIO(io: CommandIO): void {
+        this.io = io;
+        this.setupIO();
+    }
+
+    protected setupIO(): void {}
+
+    abstract execute(argv: string[]): Promise<number>;
+
+    protected writeOutput(data: string): void {
+        this.io?.writeOutput(data);
+    }
+}
+

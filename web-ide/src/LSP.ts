@@ -8,6 +8,7 @@ export const getLSP = async () => {
   
     const comms = new WorkerComms(worker);
 
+    console.log("WAITING FOR READY")
     await comms.waitForReady();
     //const reader = comms.getReader();
     //const writer = comms.getWriter();

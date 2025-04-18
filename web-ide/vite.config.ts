@@ -8,7 +8,7 @@ import topLevelAwait from "vite-plugin-top-level-await";
 export default defineConfig({
   base: "./",
   plugins: [
-    react(),
+    react({ tsDecorators: true }),
     vsixPlugin(),
     topLevelAwait({
       // The export name of top-level await promise for each chunk module

@@ -4,8 +4,10 @@ declare var self: DedicatedWorkerGlobalScope;
 
 import Clangd from "./clangd.js";
 import { workspacePath, cppUri } from "../config.ts";
+
 (async () => {
-//console.log(Clangd);
+    // console.log("CREATING WORKER")
+// console.log(Clangd);
 const textEncoder = new TextEncoder();
 let resolveStdinReady = () => {};
 const stdinChunks = [];
@@ -90,10 +92,10 @@ const flags = [
 
 try {
     //console.log("clangd", clangd);
-    clangd.FS.mkdir(workspacePath);
-    clangd.FS.writeFile(cppUri, "");
+    clangd.FS.mkdir("/usr" + workspacePath);
+    clangd.FS.writeFile("/usr" + cppUri, "");
     clangd.FS.writeFile(
-        `${workspacePath}/.clangd`,
+        "/usr" + `${workspacePath}/.clangd`,
         JSON.stringify({ CompileFlags: { Add: flags } })
     );
 } catch (e) {

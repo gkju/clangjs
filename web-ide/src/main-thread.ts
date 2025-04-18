@@ -11,7 +11,7 @@ class MainThreadMessageReader {
 
     constructor(private worker: Worker) {
       this.worker.addEventListener("message", (event) => {
-        //console.log("Received data from worker:", event.data);
+        // console.log("Received data from worker:", event.data);
         if (event.data && event.data?.type !== "ready") {
             this.onData(event.data);
         }

@@ -24,7 +24,10 @@ import "vscode/localExtensionHost";
 import getLanguagesServiceOverride from "@codingame/monaco-vscode-languages-service-override";
 import getThemeServiceOverride from "@codingame/monaco-vscode-theme-service-override";
 import getTextMateServiceOverride from "@codingame/monaco-vscode-textmate-service-override";
-import getFilesServiceOverride from "@codingame/monaco-vscode-files-service-override";
+import getFilesServiceOverride, {
+    RegisteredFileSystemProvider,
+    RegisteredMemoryFile, registerFileSystemOverlay
+} from "@codingame/monaco-vscode-files-service-override";
 import getModelServiceOverride from "@codingame/monaco-vscode-model-service-override";
 import getConfigServiceOverride from "@codingame/monaco-vscode-configuration-service-override";
 import getViewsServiceOverride, { IReference, IResolvedTextEditorModel, OpenEditor } from "@codingame/monaco-vscode-views-service-override";
@@ -38,6 +41,7 @@ import getBannerServiceOverride from '@codingame/monaco-vscode-view-banner-servi
 import getStatusBarServiceOverride from '@codingame/monaco-vscode-view-status-bar-service-override'
 import getTitleBarServiceOverride from '@codingame/monaco-vscode-view-title-bar-service-override'
 import getScmServiceOverride from '@codingame/monaco-vscode-scm-service-override'
+import getWorkbenchServiceOverride from '@codingame/monaco-vscode-workbench-service-override'
 import getExplorerServiceOverride from '@codingame/monaco-vscode-explorer-service-override'
 import getDialogsServiceOverride from '@codingame/monaco-vscode-dialogs-service-override'
 import { getLSP } from "./LSP.js";
@@ -50,116 +54,10 @@ import { useSpring, animated, useSpringValue } from '@react-spring/web'
 import {compileAndRun} from "./clangjs/index";
 import {MonacoPart} from "./MonacoPart.tsx";
 import {useAppStore} from "./Store.ts";
-import {TerminalBackend} from "./Terminal.ts";
+import {TerminalBackend} from "./Terminal/Terminal.ts";
 import {
     TerminalService
 } from "@codingame/monaco-vscode-terminal-service-override/vscode/vs/workbench/contrib/terminal/browser/terminalService";
-
-self.MonacoEnvironment = {
-    getWorker(_, label) {
-        console.log("GETTING WORKER", label);
-        if (label === "json") {
-            return new jsonWorker();
-        }
-        if (label === "css" || label === "scss" || label === "less") {
-            return new cssWorker();
-        }
-        if (label === "html" || label === "handlebars" || label === "razor") {
-            return new htmlWorker();
-        }
-        if (label === "typescript" || label === "javascript") {
-            return new tsWorker();
-        }
-        if (label === "TextMateWorker") {
-            return new Worker(
-                new URL('@codingame/monaco-vscode-textmate-service-override/worker', import.meta.url),
-                { type: 'module' }
-              );
-        }
-        return new editorWorker();
-    },
-};
-
-(async () => {
-    await initialize({
-        ...getTextMateServiceOverride(),
-        ...getThemeServiceOverride(),
-        ...getLanguagesServiceOverride(),
-        ...getFilesServiceOverride(),
-        ...getModelServiceOverride(),
-        ...getConfigServiceOverride(),
-        ...getEditSessionsServiceOverride(),
-        ...getEnvironmentServiceOverride(),
-        ...getLifecycleServiceOverride(),
-        ...getStorageServiceOverride({
-            fallbackOverride: {
-              'workbench.activity.showAccounts': false
-            }
-          }),
-        ...getScmServiceOverride(),
-        ...getExtensionServiceOverride(),
-        ...getViewsServiceOverride((async (model, options) => {console.log(model, options); return null;})),
-        ...getBannerServiceOverride(),
-        ...getStatusBarServiceOverride(),
-        ...getTitleBarServiceOverride(),
-        ...getTerminalServiceOverride(new TerminalBackend()),
-        ...getExplorerServiceOverride(),
-        ...getDialogsServiceOverride(),
-    }, document.body, {
-        workspaceProvider: {
-            trusted: true,
-            async open() {
-                console.log("OPENING", window.location.href)
-                window.open(window.location.href)
-                return true
-            },
-            workspace: {
-                workspaceUri:  monaco.Uri.file(cppUri)
-            }
-        },
-    });
-    // TODO: notify upon successful initialization with something like zustand
-    console.log("INITIALIZED MONACO ENVIRONMENT");
-    useAppStore.getState().setInitialized(true);
-
-    const themeService = await getService(vscode.IThemeService);
-    console.log(themeService.getColorTheme());
-    const service = await getService(vscode.IConfigurationService);
-    (service.updateValue("workbench.colorTheme", "Default Dark Modern"));
-
-    console.log(await getService(ITerminalService));
-    
-    const { worker, reader, writer } = await getLSP();
-    
-    const languageClient = new MonacoLanguageClient({
-        name: "Clangd Client",
-        clientOptions: {
-            documentSelector: ["cpp"],
-            errorHandler: {
-                error: () => ({ action: ErrorAction.Continue }),
-                closed: () => ({ action: CloseAction.DoNotRestart }),
-            },
-            workspaceFolder: {
-                index: 0,
-                name: "workspace",
-                uri: monaco.Uri.file(cppUri),
-            },
-        },
-        connectionProvider: {
-            get: async (_encoding: string) => ({ reader, writer }),
-        },
-        //   connectionProvider: {
-        //     get: async () => ({ reader, writer }),
-        //   },
-        connection: {
-            messageTransports: { reader, writer },
-        },
-        messageTransports: { reader, writer },
-    });
-    
-    console.log("STARTING LANGUAGECLIENT");
-    languageClient.start();
-})();
 
 
 // monaco.editor.create(document.getElementById('editor')!, {
@@ -208,29 +106,29 @@ function App() {
             <MonacoEditor value="" language="cpp" />
             </>
         </animated.div> */}
-        <div style={{ height: "100vh", width: "100%" }}>
-            <MonacoEditor value="" language="cpp" />
-        </div>
-        <div>
-            {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.PANEL_PART} />
-            </div>}
-            {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.SIDEBAR_PART} />
-            </div>}
-            {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.ACTIVITYBAR_PART} />
-            </div>}
-            {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.BANNER_PART} />
-            </div>}
-            {initialized && <div style={{ height: "80vh", width: "100%" }}>
-                <MonacoPart part={Parts.STATUSBAR_PART} />
-            </div>}
-            {/*{initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
-            {/*    <MonacoPart part={Parts.TITLEBAR_PART} />*/}
-            {/*</div>}*/}
-        </div>
+        {/*<div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*    <MonacoEditor value="" language="cpp" />*/}
+        {/*</div>*/}
+        {/*<div>*/}
+        {/*    {initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*        <MonacoPart part={Parts.PANEL_PART} />*/}
+        {/*    </div>}*/}
+        {/*    {initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*        <MonacoPart part={Parts.SIDEBAR_PART} />*/}
+        {/*    </div>}*/}
+        {/*    {initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*        <MonacoPart part={Parts.ACTIVITYBAR_PART} />*/}
+        {/*    </div>}*/}
+        {/*    {initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*        <MonacoPart part={Parts.BANNER_PART} />*/}
+        {/*    </div>}*/}
+        {/*    {initialized && <div style={{ height: "80vh", width: "100%" }}>*/}
+        {/*        <MonacoPart part={Parts.STATUSBAR_PART} />*/}
+        {/*    </div>}*/}
+        {/*    /!*{initialized && <div style={{ height: "80vh", width: "100%" }}>*!/*/}
+        {/*    /!*    <MonacoPart part={Parts.TITLEBAR_PART} />*!/*/}
+        {/*    /!*</div>}*!/*/}
+        {/*</div>*/}
         {/* <button onClick={() => setEnabled(!editorEnabled)}>Toggle Editor</button>
         {editorEnabled && (<div style={{ height: "100vh", width: "100%" }}><MonacoEditor refCallback={console.log} value="" language="cpp" /></div>)} */}
     </>;

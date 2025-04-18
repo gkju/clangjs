@@ -6,17 +6,10 @@ import { Buffer } from "buffer";
 
 
 
-export const compileAndRun = async (mainC) => {
+export const compileAndRun = async (mainC, clang) => {
     // TODO: move init to a better place
     window.Buffer = Buffer;
     await init();
-
-    
-
-    const clang = await Clang({
-        print: console.log,
-        printErr: console.error,
-    });
 
     //console.log(clang.FS.readdir("/include/wasm32-wasi/c++/v1"));
     //console.log(clang.FS.readdir("/lib/clang/19.1.5/lib/wasi/"));
@@ -62,6 +55,8 @@ export const compileAndRun = async (mainC) => {
     ]);
     const mainWasm = lld.FS.readFile("main.wasm");
 
+    // TODO: use wasmer wasmfs with overrides for clangfs mounts which will allow wasi
+    // to read from the emscripten fs
     const wasi = new WASI({});
     const module = await WebAssembly.compile(mainWasm);
     const instance = await WebAssembly.instantiate(module, {
