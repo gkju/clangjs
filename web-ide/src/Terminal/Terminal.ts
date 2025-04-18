@@ -4,10 +4,10 @@ import {
     SimpleTerminalProcess
 } from '@codingame/monaco-vscode-terminal-service-override'
 import ansiColors from 'ansi-colors'
-import * as vscode from 'vscode'
 import {CommandIO} from "./CommandIO.ts";
 import { CommandExecutor } from './CommandExecutor.ts';
 import {ClearCommand} from "./Commands/ClearCommand.ts";
+import * as vscode from "vscode";
 
 // TODO: make it so commands arent shaken away despite being unused
 export const usedCommands = [new ClearCommand()];
@@ -44,7 +44,9 @@ class WebTerminalProcess extends SimpleTerminalProcess {
         return undefined
     }
 
-    override onDidChangeProperty = this.propertyEmitter.event
+    override get onDidChangeProperty() {
+        return this.propertyEmitter.event;
+    }
 
     override shutdown(immediate: boolean): void {
         console.log('shutdown', immediate)
