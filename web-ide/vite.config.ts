@@ -17,6 +17,9 @@ export default defineConfig({
       promiseImportName: (i) => `__tla_${i}`,
     }),
   ],
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   resolve: {
     alias: {
       buffer: "buffer",

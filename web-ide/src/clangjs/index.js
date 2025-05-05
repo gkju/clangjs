@@ -39,6 +39,10 @@ export const compileAndRun = async (mainC, clang) => {
     const mainO = clang.FS.readFile("main.o");
 
     const lld = await Lld();
+//    lld.FS.mount(lld.PROXYFS, {
+//        root: "/",
+//        fs: clang.FS
+//    }, "/clang")
     lld.FS.writeFile("main.o", mainO);
     await lld.callMain([
         "-flavor",
@@ -53,17 +57,21 @@ export const compileAndRun = async (mainC, clang) => {
         "-o",
         "main.wasm",
     ]);
+    console.log("past lld")
     const mainWasm = lld.FS.readFile("main.wasm");
 
     // TODO: use wasmer wasmfs with overrides for clangfs mounts which will allow wasi
     // to read from the emscripten fs
     const wasi = new WASI({});
     const module = await WebAssembly.compile(mainWasm);
+    console.log("module is ", module)
     const instance = await WebAssembly.instantiate(module, {
         ...wasi.getImports(module),
     });
 
     wasi.start(instance);
+    console.log("wasi is ", wasi)
+    console.log("instance is", instance)
     const stdout = await wasi.getStdoutString();
     return stdout;
 };

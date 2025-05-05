@@ -1,32 +1,81 @@
 import {
     ITerminalChildProcess,
     SimpleTerminalBackend,
-    SimpleTerminalProcess
 } from '@codingame/monaco-vscode-terminal-service-override'
 import ansiColors from 'ansi-colors'
 import {CommandIO} from "./CommandIO.ts";
 import { CommandExecutor } from './CommandExecutor.ts';
 import {ClearCommand} from "./Commands/ClearCommand.ts";
 import * as vscode from "vscode";
+import { IProcessDataEvent, IProcessReadyEvent, ProcessPropertyType, IProcessPropertyMap } from '@codingame/monaco-vscode-api/vscode/vs/platform/terminal/common/terminal';
+import {Emitter, Event} from "@codingame/monaco-vscode-api/vscode/vs/base/common/event";
+import {unsupported} from "@codingame/monaco-vscode-api/tools";
 
 // TODO: make it so commands arent shaken away despite being unused
 export const usedCommands = [new ClearCommand()];
 
-class WebTerminalProcess extends SimpleTerminalProcess {
+class WebTerminalProcess implements ITerminalChildProcess {
     private column = 0;
     private ioPipe: CommandIO = new CommandIO();
     private executor: CommandExecutor = new CommandExecutor(this.ioPipe);
     private _onDidChangeProperty: vscode.Event<{ type: string; value: string }>;
-
+    private pid: number;
+    public id: number;
+    private cwd: string;
+    private onData: vscode.Event<string>;
+    private onReady: Emitter<IProcessReadyEvent>;
+    public shouldPersist: boolean;
+    public onProcessData: Event<string>;
+    public onProcessReady: Event<IProcessReadyEvent>;
+    public onProcessExit = Event.None;
+    public processBinary: typeof unsupported;
+    public refreshProperty: () => Promise<undefined>;
 
     constructor(private dataEmitter: vscode.EventEmitter<string>,
                 private propertyEmitter: vscode.EventEmitter<{
                     type: string
                     value: string
                 }>) {
-        super(1, 1, '/workspace', dataEmitter.event)
+
+        const id = 1;
+        const pid = 1;
+        const cwd = '/workspace';
+        const onData = dataEmitter.event;
         this._onDidChangeProperty = propertyEmitter.event;
+
+        this.id = id;
+        this.pid = pid;
+        this.cwd = cwd;
+        this.onData = onData;
+        this.onReady = new Emitter();
+        this.shouldPersist = false;
+        this.onProcessData = this.onData;
+        this.onProcessReady = this.onReady.event;
+        this.onDidChangeProperty = Event.None;
+        this.onProcessExit = Event.None;
+        this.processBinary = unsupported;
+        this.refreshProperty = async () => undefined;
+        setTimeout(() => {
+            this.onReady.fire({
+                cwd,
+                pid,
+                windowsPty: undefined
+            });
+        });
     }
+
+    acknowledgeDataEvent() { }
+    async setUnicodeVersion() { }
+    async getInitialCwd() {
+        return this.cwd;
+    }
+    async getCwd() {
+        return this.cwd;
+    }
+    async getLatency() {
+        return 0;
+    }
+    async updateProperty() { }
 
     async start(): Promise<undefined> {
         ansiColors.enabled = true
@@ -47,15 +96,15 @@ class WebTerminalProcess extends SimpleTerminalProcess {
         return undefined
     }
 
-    override get onDidChangeProperty(): vscode.Event<{ type: string; value: string }> {
+    get onDidChangeProperty(): vscode.Event<{ type: string; value: string }> {
         return this._onDidChangeProperty;
     }
 
-    override set onDidChangeProperty(evt: vscode.Event<{ type: string; value: string }>) {
+    set onDidChangeProperty(evt: vscode.Event<{ type: string; value: string }>) {
         this._onDidChangeProperty = evt;
     }
 
-    override shutdown(immediate: boolean): void {
+    shutdown(immediate: boolean): void {
         console.log('shutdown', immediate)
         this.ioPipe.dispose();
     }
@@ -69,7 +118,7 @@ class WebTerminalProcess extends SimpleTerminalProcess {
         this.executor.execute(command, argv).finally(() => this.flushLine())
     }
 
-    override input(data: string): void {
+    input(data: string): void {
         console.log('input', data)
         if (this.executor.isActive()) {
             this.ioPipe.writeInput(data)
@@ -104,7 +153,7 @@ class WebTerminalProcess extends SimpleTerminalProcess {
         console.log('resize', cols, rows)
     }
 
-    override clearBuffer(): void | Promise<void> {}
+    clearBuffer(): void | Promise<void> {}
 }
 
 export class TerminalBackend extends SimpleTerminalBackend {

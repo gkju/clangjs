@@ -164,6 +164,8 @@ const cppFileUri = monaco.Uri.file(cppUri);
 
     console.log("Emscripten is ", Emscripten);
 
+    compileAndRun('#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}', clang)
+
 
     await initialize({
         ...getTextMateServiceOverride(),
