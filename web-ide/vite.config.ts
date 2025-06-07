@@ -30,7 +30,7 @@ export default defineConfig({
     format: "es",
   },
   optimizeDeps: {
-    exclude: ['js-big-decimal', '@wasmer/wasi'],
+    exclude: ['js-big-decimal', '@wasmer/wasi', '@wasmer/sdk'],
     esbuildOptions: {
       plugins: [
         {

@@ -89,6 +89,9 @@ importers:
       '@react-spring/web':
         specifier: ^9.7.5
         version: 9.7.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@wasmer/sdk':
+        specifier: ^0.9.0
+        version: 0.9.0
       '@wasmer/wasi':
         specifier: ^1.2.2
         version: 1.2.2
@@ -1347,6 +1350,9 @@ packages:
   '@vscode/iconv-lite-umd@0.7.0':
     resolution: {integrity: sha512-bRRFxLfg5dtAyl5XyiVWz/ZBPahpOpPrNYnnHpOpUZvam4tKH35wdhP4Kj6PbM0+KdliOsPzbGWpkxcdpNB/sg==}
 
+  '@wasmer/sdk@0.9.0':
+    resolution: {integrity: sha512-k/CY19NfeLCjA9ZpX69JAoZKiuMT3hKjDFJYWdRGkCdfig9NtC9Op7Gpg2LeezuuQKd4WaSSq8bpSMdHw1BMgg==}
+
   '@wasmer/wasi@1.2.2':
     resolution: {integrity: sha512-39ZB3gefOVhBmkhf7Ta79RRSV/emIV8LhdvcWhP/MOZEjMmtzoZWMzt7phdKj8CUXOze+AwbvGK60lKaKldn1w==}
 
@@ -2046,6 +2052,9 @@ packages:
 
   vscode-textmate@9.2.0:
     resolution: {integrity: sha512-rkvG4SraZQaPSN/5XjwKswdU0OP9MF28QjrYzUBbhb8QyG3ljB1Ky996m++jiI7KdiAP2CkBiQZd9pqEDTClqA==}
+
+  web-worker@1.5.0:
+    resolution: {integrity: sha512-RiMReJrTAiA+mBjGONMnjVDP2u3p9R1vkcGz6gDIrOMT3oGuYwX2WRMYI9ipkphSuE5XKEhydbhNEJh4NY9mlw==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -3992,6 +4001,10 @@ snapshots:
 
   '@vscode/iconv-lite-umd@0.7.0': {}
 
+  '@wasmer/sdk@0.9.0':
+    dependencies:
+      web-worker: 1.5.0
+
   '@wasmer/wasi@1.2.2': {}
 
   '@xterm/addon-clipboard@0.2.0-beta.82(@xterm/xterm@5.6.0-beta.99)':
@@ -4656,6 +4669,8 @@ snapshots:
   vscode-oniguruma@1.7.0: {}
 
   vscode-textmate@9.2.0: {}
+
+  web-worker@1.5.0: {}
 
   which@2.0.2:
     dependencies:
