@@ -46,6 +46,7 @@
     "events": "^3.3.0",
     "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@16.0.0",
     "monaco-languageclient": "^9.5.0",
+    "path-browserify": "^1.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vscode": "npm:@codingame/monaco-vscode-extension-api@16.0.0",
@@ -57,6 +58,7 @@
     "@eslint/js": "^9.24.0",
     "@types/emscripten": "^1.40.1",
     "@types/events": "^3.0.3",
+    "@types/path-browserify": "^1.0.3",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.2",
     "@types/vscode": "^1.99.1",
@@ -70,5 +72,5 @@
     "vite": "6.2.5",
     "vite-plugin-top-level-await": "^1.5.0"
   },
-  "packageManager": "pnpm@9.3.0+sha512.ee7b93e0c2bd11409c6424f92b866f31d3ea1bef5fbe47d3c7500cdc3c9668833d2e55681ad66df5b640c61fa9dc25d546efa54d76d7f8bf54b13614ac293631"
+  "packageManager": "pnpm@10.11.0"
 }

@@ -23,6 +23,7 @@ export default defineConfig({
   resolve: {
     alias: {
       buffer: "buffer",
+      path: "path-browserify",
     },
   },
   worker: {

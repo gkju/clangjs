@@ -62,6 +62,7 @@ import ZenEmscriptenNodeFS from "@zenfs/emscripten/plugin";
 import { Emscripten } from '@zenfs/emscripten';
 import Clang from "./clangjs/clang.js";
 import {ZenFsFileSystemProvider} from "./ZenFsAdapter.ts";
+import {PureZenFsFileSystemProvider} from "./PureZenFsAdapter.ts";
 
 self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -125,29 +126,27 @@ const cppFileUri = monaco.Uri.file(cppUri);
 // );
 
 (async () => {
-    const clang = await Clang({
-        print: console.log,
-        printErr: console.error,
-    });
+    // clang.FS.writeFile("main.cpp", '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}');
+    // await clang.callMain([
+    //     "-I/lib/clang/19/include",
+    //     "-I/include/wasm32-wasi/c++/v1",
+    //     "-I/include/wasm32-wasi",
+    //     //'--sysroot=lib/libc/musl',
+    //     //'-isystem/lib/libc/musl/include',
+    //     //'-isystem/lib/libc/musl/arch/emscripten',
+    //     //'-isystemlib/libc/musl/arch/emscripten/bits',
+    //     //'-isystem/lib/libcxx/include',
+    //     "--target=wasm32-wasi",
+    //     // '--target=wasm32-wasip1-threads',
+    //     "-fno-exceptions",
+    //     //'-v',
+    //     "-std=c++23",
+    //     "-O1",
+    //     "-c",
+    //     "main.cpp",
+    // ]);
+    const clang = await Clang({});
 
-    console.log(clang)
-
-    console.log("CLANG", clang);
-
-
-    clang.FS.writeFile(workspaceFile, JSON.stringify(
-        {
-                folders: [
-            {
-                path: '/usr/workspace'
-            }
-                ]
-            },
-                null,
-                2
-    ));
-    clang.FS.mkdir(workspacePath);
-    clang.FS.writeFile(cppUri, '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}');
 
     // await configureSingle({backend: Emscripten, FS: clang.FS});
 
@@ -157,14 +156,26 @@ const cppFileUri = monaco.Uri.file(cppUri);
             '/usr': {backend: Emscripten, FS: clang.FS}
         }});
 
-    const adapter = new ZenFsFileSystemProvider(clang.FS, "/usr");
+    fs.mkdirSync(workspacePath, {recursive: true});
+    fs.writeFileSync(workspaceFile, JSON.stringify(
+        {
+            folders: [
+                {
+                    path: '/workspace'
+                }
+            ]
+        },
+        null,
+        2
+    ));
+    fs.writeFileSync(cppUri, '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}');
+
+    const adapter = new PureZenFsFileSystemProvider();
     registerFileSystemOverlay(1, adapter);
 
 
 
     console.log("Emscripten is ", Emscripten);
-
-    compileAndRun('#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}', clang)
 
 
     await initialize({
@@ -186,7 +197,7 @@ const cppFileUri = monaco.Uri.file(cppUri);
         ...getBannerServiceOverride(),
         ...getStatusBarServiceOverride(),
         ...getTitleBarServiceOverride(),
-        ...getTerminalServiceOverride(new TerminalBackend()),
+        ...getTerminalServiceOverride(new TerminalBackend(adapter)),
         ...getExplorerServiceOverride(),
         ...getDialogsServiceOverride(),
         ...getWorkbenchServiceOverride(),
@@ -200,7 +211,7 @@ const cppFileUri = monaco.Uri.file(cppUri);
                 return true
             },
             workspace: {
-                workspaceUri: monaco.Uri.file("/usr" + workspaceFile)
+                workspaceUri: monaco.Uri.file(workspaceFile)
             }
         },
     });
@@ -233,7 +244,7 @@ const cppFileUri = monaco.Uri.file(cppUri);
             workspaceFolder: {
                 index: 0,
                 name: "workspace",
-                uri: monaco.Uri.file("/usr/" + cppUri),
+                uri: monaco.Uri.file(cppUri),
             },
         },
         connectionProvider: {

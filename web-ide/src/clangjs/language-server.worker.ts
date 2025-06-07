@@ -92,10 +92,10 @@ const flags = [
 
 try {
     //console.log("clangd", clangd);
-    clangd.FS.mkdir("/usr" + workspacePath);
-    clangd.FS.writeFile("/usr" + cppUri, "");
+    clangd.FS.mkdir(workspacePath);
+    clangd.FS.writeFile(cppUri, "");
     clangd.FS.writeFile(
-        "/usr" + `${workspacePath}/.clangd`,
+        `${workspacePath}/.clangd`,
         JSON.stringify({ CompileFlags: { Add: flags } })
     );
 } catch (e) {

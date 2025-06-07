@@ -1,6 +1,7 @@
 import {CommandIO} from "./CommandIO.ts";
 
 import {CommandRegistry} from "./CommandRegistry.ts";
+import {Environment} from "./Environment.ts";
 
 export class CommandExecutor {
     constructor(private io: CommandIO) {
@@ -13,7 +14,7 @@ export class CommandExecutor {
         return this.executionInProgress;
     }
 
-    async execute(command: string, args: string[]): Promise<number> {
+    async execute(command: string, args: string[], env: Environment): Promise<number> {
         const commandClass = CommandRegistry.getCommand(command);
         if (!commandClass) {
             this.io.writeError(`Command not found: ${command}`);
@@ -30,7 +31,7 @@ export class CommandExecutor {
         this.executionInProgress = true;
 
         try {
-            return await commandInstance.execute(args);
+            return await commandInstance.execute(args, env);
         } catch (error) {
             this.io.writeError(`Error executing command: ${error}`);
             return 1;
