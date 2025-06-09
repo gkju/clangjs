@@ -1,7 +1,6 @@
 //import { init, WASI } from "https://esm.sh/@wasmer/wasi@1.1.2";
-import Clang from "./clang.js";
 import Lld from "./lld.js";
-import {init, Wasmer, runWasix, Instance} from "@wasmer/sdk";
+import {init, runWasix} from "@wasmer/sdk";
 import { Buffer } from "buffer";
 
 export const compileAndRun = async (mainC, clang) => {

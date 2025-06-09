@@ -1,5 +1,13 @@
-## This project is very much a work in progress but somehow it works (kind of).
+# A fully-featured (+-) in-browser IDE for C++23 and C
+The aim of this project is to create a fully-featured in-browser IDE for C++23 and C, which can be used to write, compile, and run code directly in the browser via WebAssembly and JavaScript.
+The basis of this project is LLVM cross-compiled to WebAssembly using emscripten. Clangd is used as the language server
+whilst clang and lld handle the compilation, linking of the code. The code editor of choice is vscode ported to the web.
+The resulting website can be very resource intensive, mainly due to clangd, but it can provide a seamless experience
+on modern laptops/desktops and in the future it will be very configurable and such heavy modules will be opt-out by default.
 
+The demo can be accessed [here](https://gkju.github.io/clangjs/);
+
+# Compiling LLVM for WASM notes;
 There are a few things to consider in advance;
 Newer LLVM versions behave nicely, I built everything with 19.1.5
 Its best to use a self compiled wasi-sdk and hack together a workable sysroot. One of the main problems I encountered early on is getting clang's internal headers to play along nicely with stl.

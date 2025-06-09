@@ -50,7 +50,7 @@ import { getLSP } from "./LSP.js";
 import { CloseAction, ErrorAction } from "vscode-languageclient";
 import "@codingame/monaco-vscode-cpp-default-extension";
 import "@codingame/monaco-vscode-theme-defaults-default-extension";
-import {cppUri, workspaceFile, workspacePath} from "./config.js";
+import {cppUri, workspaceFile, workspacePath, defaultProgram} from "./config.js";
 import { useSpring, animated, useSpringValue } from '@react-spring/web'
 import {compileAndRun} from "./clangjs/index";
 import {MonacoPart} from "./MonacoPart.tsx";
@@ -168,7 +168,7 @@ const cppFileUri = monaco.Uri.file(cppUri);
         null,
         2
     ));
-    fs.writeFileSync(cppUri, '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}');
+    fs.writeFileSync(cppUri, defaultProgram);
 
     const adapter = new PureZenFsFileSystemProvider();
     registerFileSystemOverlay(1, adapter);
