@@ -66,18 +66,25 @@ const onAbort = () => {
 };
 //console.log("here");
 //console.log(Clangd);
-const clangd = await Clangd({
-    thisProgram: "/usr/bin/clangd",
-    //   locateFile: (path, prefix) => {
-    //     return path.endsWith(".wasm") ? wasmDataUrl : `${prefix}${path}`;
-    //   },
-    stdinReady,
-    stdin,
-    stdout,
-    stderr,
-    onExit: onAbort,
-    onAbort,
-});
+let clangd;
+try {
+   clangd = await Clangd({
+        thisProgram: "/usr/bin/clangd",
+        //   locateFile: (path, prefix) => {
+        //     return path.endsWith(".wasm") ? wasmDataUrl : `${prefix}${path}`;
+        //   },
+        stdinReady,
+        stdin,
+        stdout,
+        stderr,
+        onExit: onAbort,
+        onAbort,
+    });
+} catch (err) {
+    console.error("Error initializing clangd:", err);
+    self.postMessage({ type: "error", message: "Failed to initialize clangd" });
+    return;
+}
 //console.log(Clangd);
 
 const flags = [

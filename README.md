@@ -3,7 +3,7 @@ The aim of this project is to create a fully-featured in-browser IDE for C++23 a
 The basis of this project is LLVM cross-compiled to WebAssembly using emscripten. Clangd is used as the language server
 whilst clang and lld handle the compilation, linking of the code. The code editor of choice is vscode ported to the web.
 The resulting website can be very resource intensive, mainly due to clangd, but it can provide a seamless experience
-on modern laptops/desktops and in the future it will be very configurable and such heavy modules will be opt-out by default.
+on modern laptops/desktops, and in the future it will be very configurable and such heavy modules will be opt-out by default.
 
 The demo can be accessed [here](https://gkju.github.io/clangjs/);
 

@@ -131,7 +131,15 @@ class WebTerminalProcess implements ITerminalChildProcess {
     handleLine(line: string): void {
         console.log('handling line', line)
         const argv = line.split(' ')
+        while (argv.length && argv[0].trim() === '') {
+            argv.shift();
+        }
+        if (!argv.length) {
+            return;
+        }
         const command = argv.shift()
+
+        console.log("Command is ", command)
 
         this.executor.execute(command, argv, this.env).finally(() => this.flushLine())
     }
@@ -184,7 +192,8 @@ class WebTerminalProcess implements ITerminalChildProcess {
                 continue;
             }
 
-            if (c.charCodeAt(0) === 13) {
+            // TODO: add a proper parser/lexer etc
+            if (c.charCodeAt(0) === 13 || c.charCodeAt(0) === 3) {
                 if (this.linebuffer.trim().length > 0) {
                     this.commandHistory.push(this.linebuffer);
                     this.historyIndex = this.commandHistory.length;
